@@ -1,0 +1,22 @@
+{
+  "name": "url-shortener",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.8",
+    "@hono/zod-openapi": "^1.4.0",
+    "dotenv": "^17.4.2",
+    "dotenv-expand": "^13.0.0",
+    "hono": "^4.12.30",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.0",
+    "typescript": "^7.0.2"
+  }
+}
