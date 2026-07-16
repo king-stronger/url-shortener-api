@@ -7,7 +7,7 @@ expand(config())
 const envSchema = z.object({
     NODE_ENV: z.string().default("development"),
     PORT: z.coerce.number().positive().default(3000),
-    LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
+    LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
     DB_HOST: z.string().min(1),
     DB_NAME: z.string().min(1),
     DB_USER: z.string().min(1),
