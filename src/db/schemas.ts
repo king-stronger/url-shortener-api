@@ -1,1 +1,1 @@
-export * from "@/db/schemas/habits.js"
+export * from "@/db/schemas/urls.js"
