@@ -6,23 +6,20 @@ expand(config())
 
 const envSchema = z.object({
     NODE_ENV: z.string().default("development"),
-    PORT: z.coerce.number().default(3000)
+    PORT: z.coerce.number().positive().default(3000),
+    LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
+    DB_HOST: z.string().min(1),
+    DB_NAME: z.string().min(1),
+    DB_USER: z.string().min(1),
+    DB_PASSWORD: z.string().min(1),
+    DB_PORT: z.coerce.number().positive(),
 })
 
-export type env = z.infer<typeof envSchema>
+const parsed = envSchema.safeParse(process.env)
 
-let env: env;
-
-try {
-    env = envSchema.parse(process.env)
-} catch (e){
-    if(e instanceof ZodError){
-        console.log("Invalid Environment variable");
-        console.error(z.treeifyError(e))
-    } else {
-        console.error(e)
-    }
-    process.exit()
+if(!parsed.success){
+    throw new Error(`Invalid error: ${parsed.error.message}`)
 }
 
+const env = parsed.data
 export default env;
