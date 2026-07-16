@@ -7,7 +7,7 @@ import { jsonContent, jsonContentOneOf, jsonContentRequired } from "stoker/opena
 
 const tags = ["Urls"]
 const shortCodeSchema = z.object({
-    shortCode: z.uuid()
+    shortCode: z.string()
 })
 
 export const list = createRoute({
@@ -70,7 +70,7 @@ export const create = createRoute({
 export const update = createRoute({
     tags,
     method: "put",
-    path: "/urls/{id}",
+    path: "/urls/{shortCode}",
     request: {
         params: shortCodeSchema,
         body: jsonContent(
@@ -92,7 +92,7 @@ export const update = createRoute({
                 createErrorSchema(shortCodeSchema),
                 createErrorSchema(updateUrlsSchema)
             ],
-            "Invalid ID or validation(s) error(s)"
+            "Invalid shortCode or validation(s) error(s)"
         )
     }
 })
@@ -100,7 +100,7 @@ export const update = createRoute({
 export const remove = createRoute({
     tags,
     method: "delete",
-    path: "/urls/{id}",
+    path: "/urls/{shortCode}",
     request: {
         params: shortCodeSchema
     },
@@ -114,7 +114,7 @@ export const remove = createRoute({
         ),
         [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
             createErrorSchema(shortCodeSchema),
-            "Invalid ID"
+            "Invalid shortCode"
         )
     }
 })

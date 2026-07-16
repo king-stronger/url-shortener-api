@@ -2,6 +2,7 @@ import { db } from "@/db/db.js";
 import { eq } from "drizzle-orm";
 import { urlsTable } from "@/db/schemas.js";
 import type { AppRouteHandler } from "@/lib/types.js"
+import { generateShortCode } from "@/lib/short-code.js";
 import * as HttpStatusCodes from "stoker/http-status-codes"
 import * as HttpStatusPhrases from "stoker/http-status-phrases"
 import type { ListRoute, GetOneRoute, CreateRoute, UpdateRoute, RemoveRoute } from "./urls.routes.js";
@@ -16,7 +17,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
     const [url] = await db
         .select()
         .from(urlsTable)
-        .where(eq(urlsTable.id, shortCode))
+        .where(eq(urlsTable.shortCode, shortCode))
         .limit(1)
 
     if(!url){
@@ -25,8 +26,16 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
         }, HttpStatusCodes.NOT_FOUND)
     }
 
+    const [updated] = await db
+        .update(urlsTable)
+        .set({
+            clicks: url.clicks + 1
+        })
+        .where(eq(urlsTable.shortCode, shortCode))
+        .returning()
+
     return c.json(
-        url,
+        updated,
         HttpStatusCodes.OK
     )
 }
@@ -36,7 +45,12 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 
     const [url] = await db
         .insert(urlsTable)
-        .values(data)
+        .values(
+            {
+                ...data,
+                shortCode: generateShortCode()
+            }
+        )
         .returning()
 
     return c.json(

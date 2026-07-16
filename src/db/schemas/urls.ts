@@ -24,6 +24,7 @@ export const insertUrlsSchema = createInsertSchema(urlsTable, {
 .omit({
     id: true,
     clicks: true,
+    shortCode: true,
     createdAt: true,
     updatedAt: true
 })
