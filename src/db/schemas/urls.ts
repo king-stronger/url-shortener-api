@@ -1,15 +1,30 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { createSelectSchema, createInsertSchema, createUpdateSchema } from "drizzle-zod";
 
-export const urlsTable = pgTable("urls", {
-    id: uuid().primaryKey().defaultRandom(),
-    shortCode: text().notNull(),
-    originalUrl: text().notNull(),
-    clicks: integer().notNull(),
-    expiresAt: timestamp({ withTimezone: true }).notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow()
-})
+export const urlsTable = pgTable(
+    "urls",
+    {
+        id: uuid().primaryKey().defaultRandom(),
+        shortCode: text().notNull(),
+        originalUrl: text().notNull(),
+        clicks: integer().notNull().default(0),
+        expiresAt: timestamp({ withTimezone: true }),
+        createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date())
+    },
+    (table) => [
+        uniqueIndex("urls_short_code_idx").on(table.shortCode)
+    ]
+)
 
 export const selectUrlsSchema = createSelectSchema(urlsTable)
-export const createUrlsSchema = createInsertSchema(urlsTable)
-export const updateateUrlsSchema = createUpdateSchema(urlsTable)
+export const insertUrlsSchema = createInsertSchema(urlsTable, {
+    originalUrl: (schema) => schema.url()
+})
+.omit({
+    id: true,
+    clicks: true,
+    createdAt: true,
+    updatedAt: true
+})
+export const updateUrlsSchema = createUpdateSchema(urlsTable)
