@@ -29,9 +29,6 @@ importers:
       drizzle-orm:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3)
-      drizzle-zod:
-        specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@1.0.0-rc.4(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3))(zod@4.4.3)
       hono:
         specifier: ^4.12.30
         version: 4.12.30
@@ -744,12 +741,6 @@ packages:
       zod:
         optional: true
 
-  drizzle-zod@0.8.3:
-    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
-    peerDependencies:
-      drizzle-orm: '>=0.36.0'
-      zod: ^3.25.0 || ^4.0.0
-
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
@@ -1287,11 +1278,6 @@ snapshots:
     optionalDependencies:
       '@types/pg': 8.20.0
       pg: 8.22.0
-      zod: 4.4.3
-
-  drizzle-zod@0.8.3(drizzle-orm@1.0.0-rc.4(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3))(zod@4.4.3):
-    dependencies:
-      drizzle-orm: 1.0.0-rc.4(@types/pg@8.20.0)(pg@8.22.0)(zod@4.4.3)
       zod: 4.4.3
 
   end-of-stream@1.4.5:
