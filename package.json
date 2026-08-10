@@ -1,5 +1,5 @@
 {
-  "name": "url-shortener",
+  "name": "url-shortener-api",
   "type": "module",
   "version": "1.0",
   "scripts": {
