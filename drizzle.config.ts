@@ -1,4 +1,4 @@
-import env from "@/env.js"
+import env from "@/env-runtime.js"
 import { defineConfig } from "drizzle-kit"
 
 export default defineConfig({
@@ -8,11 +8,6 @@ export default defineConfig({
     strict: true,
     verbose: true,
     dbCredentials: {
-        user: env.DB_USER,
-        port: env.DB_PORT,
-        host: env.DB_HOST,
-        database: env.DB_NAME,
-        password: env.DB_PASSWORD,
-        ssl: false
+        url: env.DATABASE_URL
     }
 })

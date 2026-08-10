@@ -1,4 +1,3 @@
-import env from "@/env.js";
 import pino from "pino";
 import { defaultHook } from "stoker/openapi"
 import { requestId } from "hono/request-id";
@@ -8,10 +7,7 @@ import { structuredLogger } from "@hono/structured-logger";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 
 const rootLogger = pino({
-    level: env.LOG_LEVEL || "info",
-    transport: {
-        target: "pino-pretty"
-    }
+    level: "info",
 })
 
 export function createRouter(){

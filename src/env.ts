@@ -1,25 +1,18 @@
-import { config } from "dotenv";
-import { z, ZodError } from "zod";
-import { expand } from "dotenv-expand";
-
-expand(config())
+import { z } from "zod";
 
 const envSchema = z.object({
-    NODE_ENV: z.string().default("development"),
-    PORT: z.coerce.number().positive().default(3000),
-    LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
-    DB_HOST: z.string().min(1),
-    DB_NAME: z.string().min(1),
-    DB_USER: z.string().min(1),
-    DB_PASSWORD: z.string().min(1),
-    DB_PORT: z.coerce.number().positive(),
+    DATABASE_URL: z.url(),
+    LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info")
 })
 
-const parsed = envSchema.safeParse(process.env)
+export type Environment = z.infer<typeof envSchema>
 
-if(!parsed.success){
-    throw new Error(`Invalid error: ${parsed.error.message}`)
+export function parseEnv(data: unknown){
+    const { data: env, error } = envSchema.safeParse(data)
+    
+    if(error){
+        throw new Error(`Invalid error: ${error.message}`)
+    }
+    
+    return env
 }
-
-const env = parsed.data
-export default env;
