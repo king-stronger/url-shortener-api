@@ -8,13 +8,13 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases"
 import type { ListRoute, GetOneRoute, CreateRoute, UpdateRoute, RemoveRoute } from "./urls.routes.js";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-    const db = createDb(c.env.DATABASE_URL)
+    const db = createDb(c.env)
     const urls = await db.query.urlsTable.findMany()
     return c.json(urls)
 }
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
-    const db = createDb(c.env.DATABASE_URL)
+    const db = createDb(c.env)
     const { shortCode } = c.req.valid("param");
     const [url] = await db
         .select()
@@ -43,7 +43,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 }
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-    const db = createDb(c.env.DATABASE_URL)
+    const db = createDb(c.env)
     const data = c.req.valid("json")
 
     const [url] = await db
@@ -63,7 +63,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 }
 
 export const update: AppRouteHandler<UpdateRoute> = async (c) => {
-    const db = createDb(c.env.DATABASE_URL)
+    const db = createDb(c.env)
     const data = c.req.valid("json")
     const { shortCode } = c.req.valid("param")
 
@@ -89,7 +89,7 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
 }
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
-    const db = createDb(c.env.DATABASE_URL)
+    const db = createDb(c.env)
     const { shortCode } = c.req.valid("param")
 
     const result = await db

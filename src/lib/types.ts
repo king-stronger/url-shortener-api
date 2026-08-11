@@ -2,7 +2,7 @@ import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import type { Logger } from "pino";
 
 export interface AppBindings {
-    Bindings: CloudflareBindings;
+    Bindings: Env;
     Variables: {
         logger: Logger
     }

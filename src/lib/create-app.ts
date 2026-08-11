@@ -5,9 +5,10 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import type { AppBindings } from "@/lib/types.js";
 import { structuredLogger } from "@hono/structured-logger";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
+import { env } from "cloudflare:workers";
 
 const rootLogger = pino({
-    level: "info",
+    level: env.LOG_LEVEL,
 })
 
 export function createRouter(){

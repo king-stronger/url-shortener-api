@@ -16,3 +16,5 @@ export function parseEnv(data: unknown){
     
     return env
 }
+
+export default parseEnv(process.env)
