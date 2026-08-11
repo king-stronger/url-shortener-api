@@ -1,5 +1,6 @@
 import { integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { createSelectSchema, createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import z from "zod";
 
 export const urlsTable = pgTable(
     "urls",
@@ -19,7 +20,7 @@ export const urlsTable = pgTable(
 
 export const selectUrlsSchema = createSelectSchema(urlsTable)
 export const insertUrlsSchema = createInsertSchema(urlsTable, {
-    originalUrl: (schema) => schema.url()
+    originalUrl: z.url()
 })
 .omit({
     id: true,
