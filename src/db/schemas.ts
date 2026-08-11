@@ -1,1 +1,1 @@
-export * from "@/db/schemas/urls.js"
+export * from "@/db/schemas/urls.js";

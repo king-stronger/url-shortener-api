@@ -1,36 +1,36 @@
-import pino from "pino";
-import { defaultHook } from "stoker/openapi"
-import { requestId } from "hono/request-id";
-import { OpenAPIHono } from "@hono/zod-openapi";
-import type { AppBindings } from "@/lib/types.js";
-import { structuredLogger } from "@hono/structured-logger";
-import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { env } from "cloudflare:workers";
+import { structuredLogger } from "@hono/structured-logger";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { requestId } from "hono/request-id";
+import pino from "pino";
+import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
+import { defaultHook } from "stoker/openapi";
+import type { AppBindings } from "@/lib/types.js";
 
 const rootLogger = pino({
-    level: env.LOG_LEVEL,
-})
+	level: env.LOG_LEVEL,
+});
 
-export function createRouter(){
-    return new OpenAPIHono<AppBindings>({
-        strict: false,
-        defaultHook
-    })
+export function createRouter() {
+	return new OpenAPIHono<AppBindings>({
+		strict: false,
+		defaultHook,
+	});
 }
 
-export default function createApp(){
-    const app = createRouter()
+export default function createApp() {
+	const app = createRouter();
 
-    app.use(requestId())
-    app.use(serveEmojiFavicon(""))
-    app.use(
-        structuredLogger({
-            createLogger: c => rootLogger.child({ requestId: c.var.requestId })
-        })
-    )
+	app.use(requestId());
+	app.use(serveEmojiFavicon(""));
+	app.use(
+		structuredLogger({
+			createLogger: (c) => rootLogger.child({ requestId: c.var.requestId }),
+		}),
+	);
 
-    app.notFound(notFound)
-    app.onError(onError)
+	app.notFound(notFound);
+	app.onError(onError);
 
-    return app;
+	return app;
 }
