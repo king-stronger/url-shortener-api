@@ -14,12 +14,10 @@ import {
 	insertUrlsSchema,
 	selectUrlsSchema,
 	updateUrlsSchema,
-} from "@/db/schemas.js";
+} from "../../db/schemas.js";
+import { shortCodeParamsSchema as shortCodeSchema } from "../../services/short-code.js";
 
 const tags = ["Urls"];
-const shortCodeSchema = z.object({
-	shortCode: z.string(),
-});
 
 export const list = createRoute({
 	tags,

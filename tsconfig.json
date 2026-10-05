@@ -6,9 +6,6 @@
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true,
 		"types": ["node"],
-		"paths": {
-			"@/*": ["./src/*"]
-		},
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx"
 	},

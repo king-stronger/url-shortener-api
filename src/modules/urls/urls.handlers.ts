@@ -1,10 +1,10 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
-import { createDb } from "@/db/db.js";
-import { urlsTable } from "@/db/schemas.js";
-import { generateShortCode } from "@/lib/short-code.js";
-import type { AppRouteHandler } from "@/lib/types.js";
+import { createDb } from "../../db/db.js";
+import { urlsTable } from "../../db/schemas.js";
+import type { AppRouteHandler } from "../../lib/types.js";
+import { generateShortCode } from "../../services/short-code.js";
 import type {
 	CreateRoute,
 	GetOneRoute,
@@ -37,15 +37,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 		);
 	}
 
-	const [updated] = await db
-		.update(urlsTable)
-		.set({
-			clicks: sql`${urlsTable.clicks} + 1`,
-		})
-		.where(eq(urlsTable.shortCode, shortCode))
-		.returning();
-
-	return c.json(updated, HttpStatusCodes.OK);
+	return c.json(url, HttpStatusCodes.OK);
 };
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {

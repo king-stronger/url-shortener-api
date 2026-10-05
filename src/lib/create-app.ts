@@ -5,8 +5,8 @@ import { requestId } from "hono/request-id";
 import pino from "pino";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
-import type { AppBindings } from "@/lib/types.js";
 import { createAuth } from "./auth.js";
+import type { AppBindings } from "./types.js";
 
 const rootLogger = pino({
 	level: env.LOG_LEVEL,

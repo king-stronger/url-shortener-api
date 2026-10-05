@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "@/db/schemas.js";
+import * as schema from "./schemas.js";
 
 type DBEnv = Pick<Env, "DATABASE_URL">;
 
