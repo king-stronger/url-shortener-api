@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@hono/node-server':
-        specifier: ^2.0.8
-        version: 2.0.8(hono@4.12.30)
       '@hono/structured-logger':
         specifier: ^0.1.0
         version: 0.1.0(hono@4.12.30)
@@ -44,9 +41,6 @@ importers:
       nanoid:
         specifier: ^6.0.0
         version: 6.0.0
-      pg:
-        specifier: ^8.22.0
-        version: 8.22.0
       pino:
         specifier: ^10.3.1
         version: 10.3.1
@@ -66,15 +60,9 @@ importers:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
-      '@types/pg':
-        specifier: ^8.20.0
-        version: 8.20.0
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
-      tsx:
-        specifier: ^4.23.0
-        version: 4.23.1
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -729,12 +717,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@hono/node-server@2.0.8':
-    resolution: {integrity: sha512-GuCWzLxwg218fy1JaHculFsdcuY12hxit83V+algozTPnwhNjLrRL/Alg9OYjLZLoUZ1rw/S4CdTMsnkSKCmFA==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      hono: ^4
 
   '@hono/structured-logger@0.1.0':
     resolution: {integrity: sha512-06QUXbNnvb6lSJz/79WcC8yhGCbWT4EO2Zq3rodzQLwUT40OVXNerCKXUcwv4KgVZGKhVebzv1Vr84w/GKEl6Q==}
@@ -2008,10 +1990,6 @@ snapshots:
   '@esbuild/win32-x64@0.28.1':
     optional: true
 
-  '@hono/node-server@2.0.8(hono@4.12.30)':
-    dependencies:
-      hono: 4.12.30
-
   '@hono/structured-logger@0.1.0(hono@4.12.30)':
     dependencies:
       hono: 4.12.30
@@ -2208,6 +2186,7 @@ snapshots:
       '@types/node': 26.1.1
       pg-protocol: 1.15.0
       pg-types: 2.2.0
+    optional: true
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
@@ -2494,15 +2473,19 @@ snapshots:
   pg-cloudflare@1.4.0:
     optional: true
 
-  pg-connection-string@2.14.0: {}
+  pg-connection-string@2.14.0:
+    optional: true
 
-  pg-int8@1.0.1: {}
+  pg-int8@1.0.1:
+    optional: true
 
   pg-pool@3.14.0(pg@8.22.0):
     dependencies:
       pg: 8.22.0
+    optional: true
 
-  pg-protocol@1.15.0: {}
+  pg-protocol@1.15.0:
+    optional: true
 
   pg-types@2.2.0:
     dependencies:
@@ -2511,6 +2494,7 @@ snapshots:
       postgres-bytea: 1.0.1
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
+    optional: true
 
   pg@8.22.0:
     dependencies:
@@ -2521,10 +2505,12 @@ snapshots:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.4.0
+    optional: true
 
   pgpass@1.0.5:
     dependencies:
       split2: 4.2.0
+    optional: true
 
   pino-abstract-transport@3.0.0:
     dependencies:
@@ -2562,15 +2548,19 @@ snapshots:
       sonic-boom: 4.2.1
       thread-stream: 4.2.0
 
-  postgres-array@2.0.0: {}
+  postgres-array@2.0.0:
+    optional: true
 
-  postgres-bytea@1.0.1: {}
+  postgres-bytea@1.0.1:
+    optional: true
 
-  postgres-date@1.0.7: {}
+  postgres-date@1.0.7:
+    optional: true
 
   postgres-interval@1.2.0:
     dependencies:
       xtend: 4.0.2
+    optional: true
 
   process-warning@5.0.0: {}
 
@@ -2732,7 +2722,8 @@ snapshots:
 
   ws@8.21.0: {}
 
-  xtend@4.0.2: {}
+  xtend@4.0.2:
+    optional: true
 
   yaml@2.9.0: {}
 

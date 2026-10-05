@@ -1,6 +1,6 @@
 import createApp from "@/lib/create-app.js";
-import index from "@/routes/index.js";
-import urls from "@/routes/urls/urls.index.js";
+import index from "@/modules/index.js";
+import urls from "@/modules/urls/urls.index.js";
 import { configureOpenApi } from "./lib/configure-open-api.js";
 
 const app = createApp();

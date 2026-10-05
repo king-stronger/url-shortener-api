@@ -61,7 +61,7 @@ export const create = createRoute({
 		body: jsonContentRequired(insertUrlsSchema, "The url to create"),
 	},
 	responses: {
-		[HttpStatusCodes.OK]: jsonContent(selectUrlsSchema, "The created url"),
+		[HttpStatusCodes.CREATED]: jsonContent(selectUrlsSchema, "The created url"),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(insertUrlsSchema),
 			"The validation(s) error(s)",
@@ -71,7 +71,7 @@ export const create = createRoute({
 
 export const update = createRoute({
 	tags,
-	method: "put",
+	method: "patch",
 	path: "/urls/{shortCode}",
 	request: {
 		params: shortCodeSchema,

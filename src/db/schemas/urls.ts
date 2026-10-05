@@ -40,4 +40,14 @@ export const insertUrlsSchema = createInsertSchema(urlsTable, {
 	createdAt: true,
 	updatedAt: true,
 });
-export const updateUrlsSchema = createUpdateSchema(urlsTable);
+export const updateUrlsSchema = createUpdateSchema(urlsTable, {
+	originalUrl: z.url(),
+})
+	.omit({
+		id: true,
+		clicks: true,
+		shortCode: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.partial();

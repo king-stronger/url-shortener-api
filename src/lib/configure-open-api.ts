@@ -8,7 +8,7 @@ export function configureOpenApi(app: AppOpenApi) {
 		in: "cookie",
 		name: "better-auth.session_token",
 	});
-	
+
 	app.doc("/docs", {
 		openapi: "3.2.0",
 		info: {
@@ -22,7 +22,7 @@ export function configureOpenApi(app: AppOpenApi) {
 		Scalar({
 			sources: [
 				{ url: "/docs", title: "API" },
-				{ url: "/api/auth/open-api/generate-schema", title: "AUTH" }
+				{ url: "/api/auth/open-api/generate-schema", title: "AUTH" },
 			],
 			theme: "kepler",
 			layout: "modern",
