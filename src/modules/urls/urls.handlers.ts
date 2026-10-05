@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { createDb } from "../../db/db.js";
@@ -13,10 +13,28 @@ import type {
 	UpdateRoute,
 } from "./urls.routes.js";
 
+const MAX_SHORT_CODE_ATTEMPTS = 3;
+
+const ownedUrl = (shortCode: string, userId: string) =>
+	and(eq(urlsTable.shortCode, shortCode), eq(urlsTable.userId, userId));
+
 export const list: AppRouteHandler<ListRoute> = async (c) => {
 	const db = createDb(c.env);
-	const urls = await db.query.urlsTable.findMany();
-	return c.json(urls);
+	const { page, limit } = c.req.valid("query");
+	const where = eq(urlsTable.userId, c.var.user.id);
+
+	const [data, total] = await Promise.all([
+		db
+			.select()
+			.from(urlsTable)
+			.where(where)
+			.orderBy(desc(urlsTable.createdAt))
+			.limit(limit)
+			.offset((page - 1) * limit),
+		db.$count(urlsTable, where),
+	]);
+
+	return c.json({ data, page, limit, total }, HttpStatusCodes.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
@@ -25,7 +43,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 	const [url] = await db
 		.select()
 		.from(urlsTable)
-		.where(eq(urlsTable.shortCode, shortCode))
+		.where(ownedUrl(shortCode, c.var.user.id))
 		.limit(1);
 
 	if (!url) {
@@ -42,17 +60,49 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
 	const db = createDb(c.env);
-	const data = c.req.valid("json");
+	const { shortCode: customShortCode, ...data } = c.req.valid("json");
+	const user = c.var.user;
 
-	const [url] = await db
-		.insert(urlsTable)
-		.values({
-			...data,
-			shortCode: generateShortCode(),
-		})
-		.returning();
+	const insert = (shortCode: string) =>
+		db
+			.insert(urlsTable)
+			.values({ ...data, shortCode, userId: user?.id ?? null })
+			.onConflictDoNothing({ target: urlsTable.shortCode })
+			.returning();
 
-	return c.json(url, HttpStatusCodes.CREATED);
+	if (customShortCode) {
+		if (!user) {
+			return c.json(
+				{
+					message: HttpStatusPhrases.UNAUTHORIZED,
+				},
+				HttpStatusCodes.UNAUTHORIZED,
+			);
+		}
+
+		const [url] = await insert(customShortCode);
+
+		if (!url) {
+			return c.json(
+				{
+					message: "Short code already in use",
+				},
+				HttpStatusCodes.CONFLICT,
+			);
+		}
+
+		return c.json(url, HttpStatusCodes.CREATED);
+	}
+
+	for (let attempt = 0; attempt < MAX_SHORT_CODE_ATTEMPTS; attempt++) {
+		const [url] = await insert(generateShortCode());
+
+		if (url) {
+			return c.json(url, HttpStatusCodes.CREATED);
+		}
+	}
+
+	throw new Error("Could not generate a unique short code");
 };
 
 export const update: AppRouteHandler<UpdateRoute> = async (c) => {
@@ -63,7 +113,7 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
 	const [url] = await db
 		.update(urlsTable)
 		.set(data)
-		.where(eq(urlsTable.shortCode, shortCode))
+		.where(ownedUrl(shortCode, c.var.user.id))
 		.returning();
 
 	if (!url) {
@@ -84,7 +134,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
 	const result = await db
 		.delete(urlsTable)
-		.where(eq(urlsTable.shortCode, shortCode));
+		.where(ownedUrl(shortCode, c.var.user.id));
 
 	if (result.rowCount === 0) {
 		return c.json(

@@ -1,11 +1,12 @@
 import { env } from "cloudflare:workers";
 import { structuredLogger } from "@hono/structured-logger";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import pino from "pino";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
-import { createAuth } from "./auth.js";
+import { createAuth, parseTrustedOrigins } from "./auth.js";
 import type { AppBindings } from "./types.js";
 
 const rootLogger = pino({
@@ -27,6 +28,17 @@ export default function createApp() {
 	app.use(
 		structuredLogger({
 			createLogger: (c) => rootLogger.child({ requestId: c.var.requestId }),
+		}),
+	);
+	app.use(
+		cors({
+			origin: (origin, c) =>
+				parseTrustedOrigins(c.env.TRUSTED_ORIGINS).includes(origin)
+					? origin
+					: null,
+			credentials: true,
+			allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+			allowHeaders: ["Content-Type", "Authorization"],
 		}),
 	);
 

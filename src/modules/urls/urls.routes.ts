@@ -1,4 +1,4 @@
-import { createRoute, z } from "@hono/zod-openapi";
+import { z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import {
@@ -15,23 +15,50 @@ import {
 	selectUrlsSchema,
 	updateUrlsSchema,
 } from "../../db/schemas.js";
+import {
+	optionalRoute,
+	protectedRoute,
+	unauthorizedResponse,
+} from "../../middlewares/auth.js";
 import { shortCodeParamsSchema as shortCodeSchema } from "../../services/short-code.js";
 
 const tags = ["Urls"];
 
-export const list = createRoute({
+const notFoundResponse = jsonContent(
+	createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
+	"Url not found",
+);
+
+const paginationQuerySchema = z.object({
+	page: z.coerce.number().int().min(1).default(1),
+	limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const list = protectedRoute({
 	tags,
 	method: "get",
 	path: "/urls",
+	request: {
+		query: paginationQuerySchema,
+	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
-			z.array(selectUrlsSchema),
-			"The list of urls",
+			z.object({
+				data: z.array(selectUrlsSchema),
+				page: z.number(),
+				limit: z.number(),
+				total: z.number(),
+			}),
+			"The paginated list of the user's urls",
+		),
+		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+			createErrorSchema(paginationQuerySchema),
+			"Invalid pagination parameters",
 		),
 	},
 });
 
-export const getOne = createRoute({
+export const getOne = protectedRoute({
 	tags,
 	method: "get",
 	path: "/urls/{shortCode}",
@@ -40,10 +67,7 @@ export const getOne = createRoute({
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(selectUrlsSchema, "The requested url"),
-		[HttpStatusCodes.NOT_FOUND]: jsonContent(
-			createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
-			"Url not found",
-		),
+		[HttpStatusCodes.NOT_FOUND]: notFoundResponse,
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(shortCodeSchema),
 			"Invalid short code",
@@ -51,7 +75,7 @@ export const getOne = createRoute({
 	},
 });
 
-export const create = createRoute({
+export const create = optionalRoute({
 	tags,
 	method: "post",
 	path: "/urls",
@@ -60,6 +84,11 @@ export const create = createRoute({
 	},
 	responses: {
 		[HttpStatusCodes.CREATED]: jsonContent(selectUrlsSchema, "The created url"),
+		[HttpStatusCodes.UNAUTHORIZED]: unauthorizedResponse,
+		[HttpStatusCodes.CONFLICT]: jsonContent(
+			createMessageObjectSchema("Short code already in use"),
+			"The custom short code is already taken",
+		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(insertUrlsSchema),
 			"The validation(s) error(s)",
@@ -67,20 +96,17 @@ export const create = createRoute({
 	},
 });
 
-export const update = createRoute({
+export const update = protectedRoute({
 	tags,
 	method: "patch",
 	path: "/urls/{shortCode}",
 	request: {
 		params: shortCodeSchema,
-		body: jsonContent(updateUrlsSchema, "The url to update"),
+		body: jsonContentRequired(updateUrlsSchema, "The url to update"),
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(selectUrlsSchema, "The updated url"),
-		[HttpStatusCodes.NOT_FOUND]: jsonContent(
-			createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
-			"Url not found",
-		),
+		[HttpStatusCodes.NOT_FOUND]: notFoundResponse,
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContentOneOf(
 			[createErrorSchema(shortCodeSchema), createErrorSchema(updateUrlsSchema)],
 			"Invalid shortCode or validation(s) error(s)",
@@ -88,7 +114,7 @@ export const update = createRoute({
 	},
 });
 
-export const remove = createRoute({
+export const remove = protectedRoute({
 	tags,
 	method: "delete",
 	path: "/urls/{shortCode}",
@@ -99,10 +125,7 @@ export const remove = createRoute({
 		[HttpStatusCodes.NO_CONTENT]: {
 			description: "The deleted url",
 		},
-		[HttpStatusCodes.NOT_FOUND]: jsonContent(
-			createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
-			"Url not found",
-		),
+		[HttpStatusCodes.NOT_FOUND]: notFoundResponse,
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(shortCodeSchema),
 			"Invalid shortCode",
