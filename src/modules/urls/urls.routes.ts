@@ -11,6 +11,7 @@ import {
 	createMessageObjectSchema,
 } from "stoker/openapi/schemas";
 import {
+	DEVICES,
 	insertUrlsSchema,
 	selectUrlsSchema,
 	updateUrlsSchema,
@@ -133,8 +134,57 @@ export const remove = protectedRoute({
 	},
 });
 
+const statsQuerySchema = z.object({
+	days: z.coerce.number().int().min(1).max(365).default(30),
+});
+
+const clickCountSchema = z.number().int();
+
+export const stats = protectedRoute({
+	tags,
+	method: "get",
+	path: "/urls/{shortCode}/stats",
+	request: {
+		params: shortCodeSchema,
+		query: statsQuerySchema,
+	},
+	responses: {
+		[HttpStatusCodes.OK]: jsonContent(
+			z.object({
+				totalClicks: clickCountSchema,
+				days: z.number().int(),
+				clicksByDay: z.array(
+					z.object({ date: z.string(), clicks: clickCountSchema }),
+				),
+				topCountries: z.array(
+					z.object({
+						country: z.string().nullable(),
+						clicks: clickCountSchema,
+					}),
+				),
+				topReferrers: z.array(
+					z.object({
+						referrer: z.string().nullable(),
+						clicks: clickCountSchema,
+					}),
+				),
+				devices: z.array(
+					z.object({ device: z.enum(DEVICES), clicks: clickCountSchema }),
+				),
+			}),
+			"Click statistics over the last `days` days (UTC). A null referrer means direct traffic.",
+		),
+		[HttpStatusCodes.NOT_FOUND]: notFoundResponse,
+		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContentOneOf(
+			[createErrorSchema(shortCodeSchema), createErrorSchema(statsQuerySchema)],
+			"Invalid shortCode or query parameters",
+		),
+	},
+});
+
 export type ListRoute = typeof list;
 export type GetOneRoute = typeof getOne;
 export type CreateRoute = typeof create;
 export type UpdateRoute = typeof update;
 export type RemoveRoute = typeof remove;
+export type StatsRoute = typeof stats;

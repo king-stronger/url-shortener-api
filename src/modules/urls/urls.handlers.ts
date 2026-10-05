@@ -4,12 +4,14 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { createDb } from "../../db/db.js";
 import { urlsTable } from "../../db/schemas.js";
 import type { AppRouteHandler } from "../../lib/types.js";
+import { getClickStats } from "../../services/click-stats.js";
 import { generateShortCode } from "../../services/short-code.js";
 import type {
 	CreateRoute,
 	GetOneRoute,
 	ListRoute,
 	RemoveRoute,
+	StatsRoute,
 	UpdateRoute,
 } from "./urls.routes.js";
 
@@ -146,4 +148,32 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 	}
 
 	return c.body(null, HttpStatusCodes.NO_CONTENT);
+};
+
+export const stats: AppRouteHandler<StatsRoute> = async (c) => {
+	const db = createDb(c.env);
+	const { shortCode } = c.req.valid("param");
+	const { days } = c.req.valid("query");
+
+	const [url] = await db
+		.select({ id: urlsTable.id, clicks: urlsTable.clicks })
+		.from(urlsTable)
+		.where(ownedUrl(shortCode, c.var.user.id))
+		.limit(1);
+
+	if (!url) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
+			HttpStatusCodes.NOT_FOUND,
+		);
+	}
+
+	const clickStats = await getClickStats(db, url.id, days);
+
+	return c.json(
+		{ totalClicks: url.clicks, days, ...clickStats },
+		HttpStatusCodes.OK,
+	);
 };

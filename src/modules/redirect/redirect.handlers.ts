@@ -4,6 +4,7 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { createDb } from "../../db/db.js";
 import { urlsTable } from "../../db/schemas.js";
 import type { AppRouteHandler } from "../../lib/types.js";
+import { recordClick } from "../../services/click-tracking.js";
 import type { RedirectRoute } from "./redirect.routes.js";
 
 export const redirect: AppRouteHandler<RedirectRoute> = async (c) => {
@@ -23,9 +24,15 @@ export const redirect: AppRouteHandler<RedirectRoute> = async (c) => {
 				or(isNull(urlsTable.expiresAt), gt(urlsTable.expiresAt, sql`now()`)),
 			),
 		)
-		.returning({ originalUrl: urlsTable.originalUrl });
+		.returning({ id: urlsTable.id, originalUrl: urlsTable.originalUrl });
 
 	if (url) {
+		c.executionCtx.waitUntil(
+			recordClick(db, url.id, c.req.raw).catch((error) => {
+				c.var.logger.error({ error, urlId: url.id }, "Failed to record click");
+			}),
+		);
+
 		return c.redirect(url.originalUrl, HttpStatusCodes.MOVED_TEMPORARILY);
 	}
 
